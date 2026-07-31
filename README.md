@@ -1,6 +1,6 @@
 
 
-# Pipeline de Curaduría de Fenotipos AMR para *Acinetobacter baumannii*
+# Extracción y Curaduria de Fenotipos Experimentales de AMR para *Acinetobacter baumannii* desde BV-BRC
 
 > **Pipeline ejecutable en R para la extracción, filtrado bioinformático y auditoría estricta de fenotipos de resistencia antimicrobiana (AMR) provenientes exclusivamente de ensayos de laboratorio.**
 
@@ -126,7 +126,7 @@ source("R/pipeline_bvbrc.R")
 Este proyecto está distribuido bajo la Licencia **MIT**.
 
 * **Autor:** J Vladimir Alvarez Poma / IIFB
-* **Contacto:** [jvalvarez1@umsa.bo]
+* **Contacto:** jvalvarez1@umsa.bo
 * **Base de datos de origen:** [Recurso BV-BRC](https://www.bv-brc.org/)
 * **Última actualización:** 30 de julio de 2026
 * **Versión del Pipeline:** 1.0.0
