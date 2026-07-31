@@ -8,7 +8,7 @@
 
 ##  Tabla de Contenidos
 
-* [Racional Científico](https://www.google.com/search?q=%23-racional-cient%C3%ADfico)
+* [ Marco Lógico y Antecedentes Metodológicos](https://www.google.com/search?q=%23-racional-cient%C3%ADfico)
 * [Arquitectura del Pipeline](https://www.google.com/search?q=%23-arquitectura-del-pipeline)
 * [Requisitos del Sistema](https://www.google.com/search?q=%23-requisitos-del-sistema)
 * [Estructura del Repositorio](https://www.google.com/search?q=%23-estructura-del-repositorio)
@@ -21,9 +21,9 @@
 
 ##  Marco Lógico y Antecedentes Metodológicos
 
-Las bases de datos genómicas globales como **BV-BRC** contienen metadatos heterogéneos que combinan **ensayos experimentales reales** como CIM, disco-difusión; con **predicciones computacionales. Integrar fenotipos predecidos en estudios de asociación genotipo-fenotipo, introduce sesgos y circularidad estadística.
+Las bases de datos genómicas globales como **BV-BRC** contienen metadatos heterogéneos que combinan **ensayos experimentales reales** como CIM, disco-difusión; con **predicciones computacionales**. Integrar fenotipos predecidos en estudios de asociación genotipo-fenotipo, introduce sesgos y circularidad estadística.
 
-Este pipeline resuelve dicho problema mediante un **flujo de trabajo auditable en 6 etapas**, diseñado para retener únicamente aislados con:
+Este pipeline resuelve dicho problema mediante un flujo de trabajo auditable en 6 etapas, diseñado para retener únicamente aislados con:
 
 1. Evidencia experimental verificada en laboratorio.
 2. Calidad de ensamblado genómico validada (**Good** / **Complete-WGS**).
