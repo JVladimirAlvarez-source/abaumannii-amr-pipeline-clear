@@ -125,7 +125,7 @@ source("R/pipeline_bvbrc.R")
 
 Este proyecto está distribuido bajo la Licencia **MIT**.
 
-* **Autor:** [J Vladimir Alvarez Poma / IIFB]
+* **Autor:** J Vladimir Alvarez Poma / IIFB
 * **Contacto:** [jvalvarez1@umsa.bo]
 * **Base de datos de origen:** [Recurso BV-BRC](https://www.bv-brc.org/)
 * **Última actualización:** 30 de julio de 2026
