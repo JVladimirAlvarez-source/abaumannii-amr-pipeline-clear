@@ -19,7 +19,7 @@
 
 ---
 
-##  Racional Científico
+##  Marco Lógico y Antecedentes Metodológicos
 
 Las bases de datos genómicas globales como **BV-BRC** contienen metadatos heterogéneos que combinan **ensayos experimentales reales** como CIM, disco-difusión; con **predicciones computacionales. Integrar fenotipos predecidos en estudios de asociación genotipo-fenotipo, introduce sesgos y circularidad estadística.
 
@@ -48,7 +48,7 @@ graph TD
 
 ---
 
-## 💻 Requisitos del Sistema
+##  Requisitos del Sistema
 
 * **R** ($\ge 4.2.0$) y **RStudio** (recomendado).
 * **Librerías de R** (instaladas automáticamente mediante `pacman`):
@@ -58,7 +58,7 @@ graph TD
 
 ---
 
-## 📁 Estructura del Repositorio
+##  Estructura del Repositorio
 
 ```text
 abaumannii-amr-pipeline/
