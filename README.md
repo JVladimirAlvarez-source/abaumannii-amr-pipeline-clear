@@ -21,7 +21,7 @@
 
 ##  Racional Científico
 
-Las bases de datos genómicas globales como **BV-BRC** contienen metadatos heterogéneos que combinan **ensayos experimentales reales** (CIM, disco-difusión) con **predicciones computacionales (*in silico*)**. Integrar fenotipos predecidos en estudios de asociación genotipo-fenotipo (GWAS o Aprendizaje Automático) introduce sesgos y circularidad estadística.
+Las bases de datos genómicas globales como **BV-BRC** contienen metadatos heterogéneos que combinan **ensayos experimentales reales** como CIM, disco-difusión; con **predicciones computacionales. Integrar fenotipos predecidos en estudios de asociación genotipo-fenotipo, introduce sesgos y circularidad estadística.
 
 Este pipeline resuelve dicho problema mediante un **flujo de trabajo auditable en 6 etapas**, diseñado para retener únicamente aislados con:
 
@@ -37,7 +37,7 @@ El flujo de procesamiento refina progresivamente la información extraída a tra
 
 ```mermaid
 graph TD
-    A[Paso 1: Extracción de Genomas<br>Taxón 470] --> B[Paso 2: Descarga de Fenotipos<br>Exclusión de predicciones]
+    A[Paso 1: Extracción de Genomas<br>] --> B[Paso 2: Descarga de Fenotipos<br>Exclusión de predicciones]
     B --> C[Paso 3: Limpieza e Integridad<br>Eliminación de NAs/vacíos]
     C --> D[Paso 4: Control de Calidad Genómica<br>Filtro: Good & Complete/WGS]
     D --> E[Paso 5: Umbral Estadístico AMR<br>Retención: ≥100 S y ≥100 R]
