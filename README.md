@@ -2,7 +2,7 @@
 
 # Extracción y Curaduria de Fenotipos Experimentales de AMR para *Acinetobacter baumannii* desde BV-BRC
 
-> **Pipeline ejecutable en R para la extracción, filtrado bioinformático y auditoría estricta de fenotipos de resistencia antimicrobiana (AMR) provenientes exclusivamente de ensayos de laboratorio.**
+> **Pipeline ejecutable en R para la extracción, filtrado y auditoría estricta de fenotipos de resistencia antimicrobiana (AMR) provenientes exclusivamente de ensayos de laboratorio.**
 
 ---
 
@@ -31,7 +31,7 @@ Este pipeline resuelve dicho problema mediante un **flujo de trabajo auditable e
 
 ---
 
-## ⚙ Arquitectura del Pipeline
+##  Arquitectura del Pipeline
 
 El flujo de procesamiento refina progresivamente la información extraída a través de la API oficial de BV-BRC:
 
