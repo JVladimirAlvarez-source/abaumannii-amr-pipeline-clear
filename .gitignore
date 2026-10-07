@@ -1,0 +1,8 @@
+resultados/
+resultados_estrictos/
+resultados_analiticos/
+resultados_historicos_v1/
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/

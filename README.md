@@ -1,97 +1,109 @@
 
+# Pipeline de Curaduría de Fenotipos AMR para *Acinetobacter baumannii*
 
-# Extracción y Curaduria de Fenotipos Experimentales de AMR para *Acinetobacter baumannii* desde BV-BRC
-
-> **Pipeline ejecutable en R para la extracción, filtrado y auditoría estricta de fenotipos de resistencia antimicrobiana (AMR) provenientes exclusivamente de ensayos de laboratorio.**
-
----
-
-## Tabla de Contenidos
-
-- [Marco Lógico y Antecedentes Metodológicos](#marco-lógico-y-antecedentes-metodológicos)
-- [Arquitectura del Pipeline](#arquitectura-del-pipeline)
-- [Requisitos del Sistema](#requisitos-del-sistema)
-- [Estructura del Repositorio](#estructura-del-repositorio)
-- [Guía de Ejecución](#guía-de-ejecución)
-- [Descripción de Archivos de Salida](#descripción-de-archivos-de-salida)
-- [Interpretación de Indicadores Clave](#interpretación-de-indicadores-clave)
-- [Licencia y Contacto](#licencia-y-contacto)
+> **Pipeline analítico ejecutable en R para la extracción, filtrado bioinformático, auditoría geográfica estricta y curaduría de fenotipos de resistencia antimicrobiana (AMR) provenientes exclusivamente de ensayos experimentales de laboratorio.**
 
 ---
 
-##  Marco Lógico y Antecedentes Metodológicos
+## 📋 Tabla de Contenidos
 
-Las bases de datos genómicas globales como **BV-BRC** contienen metadatos heterogéneos que combinan **ensayos experimentales reales** como CIM, disco-difusión; con **predicciones computacionales**. Integrar fenotipos predecidos en estudios de asociación genotipo-fenotipo, introduce sesgos y circularidad estadística.
-
-Este pipeline resuelve dicho problema mediante un flujo de trabajo auditable en 6 etapas, diseñado para retener únicamente aislados con:
-
-1. Evidencia experimental verificada en laboratorio.
-2. Calidad de ensamblado genómico validada (**Good** / **Complete-WGS**).
-3. Potencia estadística adecuada ($\ge 100$ aislados susceptibles y $\ge 100$ resistentes por antibiótico).
+- [Racional Científico](#-racional-científico)
+- [Arquitectura del Pipeline](#-arquitectura-del-pipeline)
+- [Requisitos del Sistema y Dependencias](#-requisitos-del-sistema-y-dependencias)
+- [Estructura del Repositorio](#-estructura-del-repositorio)
+- [Guía de Ejecución](#-guía-de-ejecución)
+- [Descripción de Artefactos de Salida](#-descripción-de-artefactos-de-salida)
+- [Trazabilidad y Auditoría de Datos](#-trazabilidad-y-auditoría-de-datos)
+- [Licencia y Contacto](#-licencia-y-contacto)
 
 ---
 
-##  Arquitectura del Pipeline
+## 🔬 Racional Científico
 
-El flujo de procesamiento refina progresivamente la información extraída a través de la API oficial de BV-BRC:
+Las bases de datos genómicas globales como **BV-BRC** albergan metadatos heterogéneos que combinan ensayos experimentales reales (CIM, disco-difusión) con predicciones computacionales (*in silico*). La inclusión no controlada de fenotipos predichos en modelos de asociación genotipo-fenotipo (GWAS o Aprendizaje Automático) introduce sesgos y circularidad estadística.
+
+Este pipeline resuelve dicho problema mediante un **flujo de trabajo auditable en 6 etapas**, diseñado para construir un *dataset* analítico riguroso con aislados que cumplan:
+
+1. **Evidencia experimental verificada:** Exclusión total de predicciones algorítmicas (`Computational Prediction`).
+2. **Calidad de ensamblado genómico aprobada:** Retención exclusiva de calidad `Good` y estado de ensamblado `Complete` / `WGS`.
+3. **Criterio geográfico estricto:** Exclusión de países fuera de alcance del diseño de estudio (ej. Perú, Honduras) y registros con inconsistencia dual en metadatos espaciales (`No especificado` tanto en región geográfica como en país).
+4. **Potencia estadística para modelado:** Retención de antibióticos con un umbral mínimo de $\ge 100$ aislados susceptibles y $\ge 100$ resistentes.
+
+---
+
+## ⚙ Arquitectura del Pipeline
+
+El flujo de procesamiento refina progresivamente la información extraída a través de la API oficial de BV-BRC mediante procesamiento por lotes (*chunks*):
 
 ```mermaid
 graph TD
-    A[Paso 1: Extracción de Genomas<br>] --> B[Paso 2: Descarga de Fenotipos<br>Exclusión de predicciones]
-    B --> C[Paso 3: Limpieza e Integridad<br>Eliminación de NAs/vacíos]
-    C --> D[Paso 4: Control de Calidad Genómica<br>Filtro: Good & Complete/WGS]
-    D --> E[Paso 5: Umbral Estadístico AMR<br>Retención: ≥100 S y ≥100 R]
-    E --> F[Paso 6: Enriquecimiento Geográfico<br>Continente y País]
-    D -.-> G[Auditoría: Muestra Excluida<br>Análisis de fenotipos descartados]
+    A[Paso 1: Extracción de Genomas<br>Taxón 470 - A. baumannii] --> B[Paso 2: Descarga de Fenotipos<br>Filtro: Exclusión de predicciones]
+    B --> C[Limpieza Estructural<br>Eliminación de NAs y vacíos]
+    C --> D[Paso 3: Control de Calidad Genómica<br>Filtro: Good & Complete/WGS]
+    D --> E[Paso 4: Pre-filtro Geográfico<br>Exclusión: Perú, Honduras, No especificados]
+    E --> F[Paso 5: Umbral Estadístico AMR<br>Retención: ≥100 S y ≥100 R por antibiótico]
+    F --> G[Paso 6: Datasets Analíticos Finales<br>Capa lista para Modelado/GWAS]
+    
+    E -.-> H[Auditoría Geográfica<br>audit_excluded_geographic.csv]
+    F -.-> I[Auditoría Ciclo de Vida<br>audit_genomes_lifecycle.csv]
 
 ```
 
 ---
 
-##  Requisitos del Sistema
+## 💻 Requisitos del Sistema y Dependencias
 
-* **R** ($\ge 4.2.0$) y **RStudio** (recomendado).
-* **Librerías de R** (instaladas automáticamente mediante `pacman`):
-* `httr`, `jsonlite`, `dplyr`, `purrr`, `tidyr`, `readr`, `pacman`
+* **Entorno R:** R ($\ge 4.2.0$) y RStudio (recomendado).
+* **Gestor de Paquetes:** `pacman` (para instalación y carga automatizada).
+* **Librerías Requeridas:**
+* `httr`: Solicitudes HTTP y comunicación con la API de BV-BRC.
+* `jsonlite`: Parsing de respuestas JSON.
+* `dplyr` & `tidyr`: Transmutación y remodelado de estructuras de datos.
+* `purrr`: Programación funcional y desacoplamiento de listas compuestas.
+* `readr`: Persistencia eficiente de datos en disco.
 
 
 
 ---
 
-##  Estructura del Repositorio
+## 📁 Estructura del Repositorio
 
 ```text
-abaumannii-amr-pipeline/
-├── README.md                      <-- Documentación principal
+abaumannii-amr-pipeline-clear/
+├── README.md                          <-- Documentación arquitectónica principal
+├── LICENSE                            <-- Licencia MIT de código abierto
+├── .gitignore                         <-- Protección de datos dinámicos y temporales
 ├── R/
-│   └── pipeline_bvbrc.R           <-- Código fuente modularizado
-└── resultados/                    <-- Salidas en formato CSV (auto-creado)
-    ├── A_baumannii_TODOS_LOS_FENOTIPOS_LABORATORIO.csv
-    ├── A_baumannii_FENOTIPOS_LABORATORIO_SIN_NA.csv
-    ├── lista_genomas_calidad_GOOD_WGS_COMPLETE.csv
-    ├── A_baumannii_FENOTIPOS_FINAL_ALTA_CALIDAD.csv
-    ├── tabla_antibioticos_filtrados_ge100.csv
-    ├── distribucion_genomas_continente_pais.csv
-    └── audit_223_genomas_fenotipos_SR.csv
+│   └── run_pipeline_analytical.R      <-- Código fuente modularizado del pipeline
+└── resultados_analiticos/             <-- Artefactos de salida (Directorio generado automáticamente)
+    ├── abaumannii_phenotypes_raw.csv
+    ├── abaumannii_phenotypes_clean.csv
+    ├── abaumannii_genomes_quality_pass.csv
+    ├── audit_excluded_geographic.csv
+    ├── antibiotics_summary_robust.csv
+    ├── audit_genomes_lifecycle.csv
+    ├── abaumannii_phenotypes_analytical.csv
+    ├── abaumannii_genomes_analytical.csv
+    └── geographic_distribution_summary.csv
 
 ```
 
 ---
 
-## Guía de Ejecución
+## 🚀 Guía de Ejecución
 
-1. **Clonar o descargar el repositorio**:
+1. **Clonar el repositorio**:
 ```bash
-git clone https://github.com/tu-usuario/abaumannii-amr-pipeline.git
-cd abaumannii-amr-pipeline
+git clone [https://github.com/JVladimirAlvarez-source/abaumannii-amr-pipeline-clear.git](https://github.com/JVladimirAlvarez-source/abaumannii-amr-pipeline-clear.git)
+cd abaumannii-amr-pipeline-clear
 
 ```
 
 
-2. **Ejecutar el pipeline en R/RStudio**:
-Abre tu sesión de R orientada a la carpeta raíz del proyecto y ejecuta:
+2. **Ejecutar el Pipeline en R / RStudio**:
+Abre el proyecto en RStudio y ejecuta el script principal desde la consola o terminal R:
 ```R
-source("R/pipeline_bvbrc.R")
+source("R/run_pipeline_analytical.R")
 
 ```
 
@@ -99,34 +111,42 @@ source("R/pipeline_bvbrc.R")
 
 ---
 
-##  Descripción de Archivos de Salida
+## 📊 Descripción de Artefactos de Salida
 
-| Nombre del Archivo | Descripción Biológica / Técnica |
-| --- | --- |
-| `A_baumannii_TODOS_LOS_FENOTIPOS_LABORATORIO.csv` | Registros brutos descargados descartando predicciones algorítmicas. |
-| `A_baumannii_FENOTIPOS_LABORATORIO_SIN_NA.csv` | Datos filtrados excluyendo registros sin método fenotípico o sin resultado S/R. |
-| `lista_genomas_calidad_GOOD_WGS_COMPLETE.csv` | Catálogo de genomas aprobados por el filtro bioinformático de calidad de ensamblado. |
-| `A_baumannii_FENOTIPOS_FINAL_ALTA_CALIDAD.csv` | **Dataset Maestro Curado:** Fenotipos validados listos para modelado. |
-| `tabla_antibioticos_filtrados_ge100.csv` | Lista de antibióticos que cumplen el umbral de potencia estadística ($\ge 100$ S y $\ge 100$ R). |
-| `distribucion_genomas_continente_pais.csv` | Resumen geográfico de la muestra para detectar sesgos de muestreo. |
-| `audit_223_genomas_fenotipos_SR.csv` | Reporte de auditoría de los fenotipos pertenecientes a genomas excluidos. |
-
----
-
-##  Interpretación de Indicadores Clave
-
-* **Genomas retenidos vs. excluidos:** Una alta tasa de retención en el **Paso 4** confirma que la muestra fenotípica proviene de ensamblados confiables.
-* **Balance de Antibióticos (Paso 5):** Excluir fármacos con $<100$ aislamientos en cualquiera de las categorías previene clases desbalanceadas en algoritmos de aprendizaje supervisado.
-* **Auditoría de Exclusión:** Permite justificar en la sección de *Métodos* la causa exacta por la cual ciertos aislados no ingresaron al modelo final.
+| Nombre del Archivo | Rol en la Arquitectura de Datos | Descripción Biológica / Técnica |
+| --- | --- | --- |
+| `abaumannii_phenotypes_raw.csv` | **Capa Raw** | Registros fenotípicos brutos descargados descartando predicciones algorítmicas. |
+| `abaumannii_phenotypes_clean.csv` | **Capa Clean** | Registros limpios sin valores nulos en el fenotipo o en el método de laboratorio. |
+| `abaumannii_genomes_quality_pass.csv` | **Capa QC** | Matriz de genomas validados con calidad `Good` y estado `Complete/WGS`. |
+| `audit_excluded_geographic.csv` | **Auditoría Espacial** | Reporte independiente de registros fenotípicos descartados por criterios geográficos. |
+| `antibiotics_summary_robust.csv` | **Métrica Analítica** | Tabla resumida de antibióticos que superaron el umbral ($\ge 100$ S y $\ge 100$ R). |
+| `audit_genomes_lifecycle.csv` | **Gobernanza de Datos** | Matriz de trazabilidad integral que documenta el motivo exacto de aprobación o exclusión de cada genoma. |
+| `abaumannii_phenotypes_analytical.csv` | **Dataset Maestro** | **Fenotipos Finales Curados:** Datos validados listos para integración en pipeline de GWAS o Aprendizaje Automático. |
+| `abaumannii_genomes_analytical.csv` | **Dataset Maestro** | Metadatos genómicos correspondientes a la muestra analítica final retenida. |
+| `geographic_distribution_summary.csv` | **Resumen Geográfico** | Desglose por continente y país de los genomas analíticos para control de sesgos espaciales. |
 
 ---
 
-##  Licencia y Contacto
+## 🔎 Trazabilidad y Auditoría de Datos
 
-Este proyecto está distribuido bajo la Licencia **MIT**.
+Para garantizar la **reproducibilidad científica de grado de publicación**, el pipeline no destruye datos descartados, sino que los canaliza a través de reportes explícitos de auditoría:
 
-* **Autor:** J Vladimir Alvarez Poma / IIFB
-* **Contacto:** jvalvarez1@umsa.bo
-* **Base de datos de origen:** [Recurso BV-BRC](https://www.bv-brc.org/)
-* **Última actualización:** 30 de julio de 2026
-* **Versión del Pipeline:** 1.0.0
+* **`audit_excluded_geographic.csv`:** Conserva el historial de los aislados apartados por no cumplir los criterios de delimitación territorial o integridad espacial.
+* **`audit_genomes_lifecycle.csv`:** Actúa como el libro mayor (*ledger*) de decisiones de curaduría. Cada genoma es categorizado bajo una etiqueta inequívoca:
+* `APROBADO`
+* `EXCLUIDO_GEOGRAFIA`
+* `EXCLUIDO_ANTIBIOTICOS`
+
+
+
+---
+
+## 📄 Licencia y Contacto
+
+Este proyecto está distribuido bajo la **Licencia MIT**.
+
+* **Autor / Investigador:** Jhonny Vladimir Alvarez Poma (IIFB)
+* **Contacto:** [jvalvarez1@umsa.bo](https://www.google.com/search?q=mailto%3Ajvalvarez1%40umsa.bo)
+* **Fuente de Datos:** [Resource Portal BV-BRC](https://www.bv-brc.org/)
+* **Versión del Pipeline:** `2.0.0-analytical`
+* **Última actualización:** Octubre de 2026
